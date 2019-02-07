@@ -23,35 +23,29 @@ CMD                    yes       The command string to execute
 Description:
   Execute an arbitrary command
 
-msfvenom -p linux/x64/exec CMD=/bin/ls -a x64 --platform linux -f raw | ndisasm -u -
+msfvenom -p linux/x64/exec CMD=/bin/ls -a x64 --platform linux -f raw | ndisasm -u -b 64 -
 
 No encoder or badchars specified, outputting raw payload
 Payload size: 47 bytes
 
 00000000  6A3B              push byte +0x3b
-00000002  58                pop eax
+00000002  58                pop rax
 00000003  99                cdq
-00000004  48                dec eax
-00000005  BB2F62696E        mov ebx,0x6e69622f
-0000000A  2F                das
-0000000B  7368              jnc 0x75
-0000000D  005348            add [ebx+0x48],dl
-00000010  89E7              mov edi,esp
-00000012  682D630000        push dword 0x632d
-00000017  48                dec eax
-00000018  89E6              mov esi,esp
-0000001A  52                push edx
+00000004  48BB2F62696E2F73  mov rbx,0x68732f6e69622f
+         -6800
+0000000E  53                push rbx
+0000000F  4889E7            mov rdi,rsp
+00000012  682D630000        push qword 0x632d
+00000017  4889E6            mov rsi,rsp
+0000001A  52                push rdx
 0000001B  E808000000        call 0x28
-00000020  2F                das
-00000021  62696E            bound ebp,[ecx+0x6e]
-00000024  2F                das
-00000025  6C                insb
-00000026  7300              jnc 0x28
-00000028  56                push esi
-00000029  57                push edi
-0000002A  48                dec eax
-0000002B  89E6              mov esi,esp
+00000020  2F                db 0x2f
+00000021  62                db 0x62
+00000022  696E2F6C730056    imul ebp,[rsi+0x2f],dword 0x5600736c
+00000029  57                push rdi
+0000002A  4889E6            mov rsi,rsp
 0000002D  0F05              syscall
+
 
 msfvenom -p linux/x64/exec CMD=/bin/ls -a x64 --platform linux -f C
 
